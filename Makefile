@@ -1,8 +1,12 @@
 # Package release builds with assets/.
 #
 #   make            both zips
+#   make run        play the game (cargo run). Same command on Windows and Linux.
 #   make windows    dist/kapibara_riot-windows.zip
 #   make linux      dist/kapibara_riot-linux.zip
+#
+# On Windows, GNU make is a separate install:
+#   winget install ezwinports.make
 #
 # Windows zip:
 #   kapibara_riot-windows/kapibara_riot.exe
@@ -27,15 +31,22 @@ LINUX_BIN   := target/release/$(NAME)
 LINUX_STAGE := dist/$(NAME)-linux
 LINUX_ZIP   := dist/$(NAME)-linux.zip
 
-SRC    := $(shell find src -type f)
-ASSETS := $(shell find assets -type f)
+SRC    := $(wildcard src/*.rs)
+ASSETS := $(wildcard assets/level1/* assets/player/*)
 
+ifeq ($(OS),Windows_NT)
+export PATH := $(USERPROFILE)/.cargo/bin;$(PATH)
+else
 export PATH := $(HOME)/.cargo/bin:$(PATH)
+endif
 
-.PHONY: all windows linux clean
+.PHONY: all windows linux clean run
 .DELETE_ON_ERROR:
 
 all: windows linux
+
+run:
+	cargo run
 
 windows: $(WIN_ZIP)
 linux: $(LINUX_ZIP)
